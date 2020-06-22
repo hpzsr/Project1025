@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class BulletScript : MonoBehaviour
 {
-    Image bullet_img;
+    Image self_img;
     public Consts.MoveDirection moveDirection;
     float moveSpeed = 6.0f;
 
@@ -20,8 +20,8 @@ public class BulletScript : MonoBehaviour
 
     void Start()
     {
-        bullet_img = gameObject.GetComponent<Image>();
-        FrameAnimationUtil.getInstance().startAnimation(bullet_img, "Sprites/bullet/bullet-", Consts.FrameAnimationSpeed.low);
+        self_img = gameObject.GetComponent<Image>();
+        FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/bullet/bullet-", Consts.FrameAnimationSpeed.low);
 
         Vector3 pos = PlayerScript.s_instance.transform.localPosition;
         if (moveDirection == Consts.MoveDirection.left)
@@ -49,16 +49,33 @@ public class BulletScript : MonoBehaviour
         if (x < -(Screen.width / 2 + 100))
         {
             DestroySelf();
+            return;
         }
         else if (x > Screen.width / 2 + 100)
         {
             DestroySelf();
+            return;
+        }
+
+        checkCollision();
+    }
+
+    void checkCollision()
+    {
+        for(int i = 0; i < EnemyManager.enemyDroneList.Count; i++)
+        {
+            EnemyDroneScript script = EnemyManager.enemyDroneList[i];
+            if (CommonUtil.uiPosIsInContent(transform.localPosition, script.transform))
+            {
+                script.hurt();
+                DestroySelf();
+            }
         }
     }
 
     public void DestroySelf()
     {
-        FrameAnimationUtil.getInstance().stopAnimation(bullet_img);
+        FrameAnimationUtil.getInstance().stopAnimation(self_img);
         Destroy(gameObject);
     }
 }

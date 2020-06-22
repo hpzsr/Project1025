@@ -35,10 +35,8 @@ public class Consts
     public enum PlayerState
     {
         idle,
-        walk,
         run_left,
         run_right,
-        run_shoot,
         jump,
         back_jump,
         climb,
