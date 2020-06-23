@@ -27,6 +27,11 @@ public class BgScript : MonoBehaviour
             {
                 distance1.transform.localPosition += new Vector3(x,0,0);
             }
+
+            if (y != 0)
+            {
+                distance1.transform.localPosition += new Vector3(0, y, 0);
+            }
         }
 
         // distance2
@@ -117,7 +122,7 @@ public class BgScript : MonoBehaviour
 
                 if (x != 0)
                 {
-                    trans.localPosition += new Vector3(x / 2, 0, 0);
+                    trans.localPosition += new Vector3(x / 3, 0, 0);
                 }
             }
 

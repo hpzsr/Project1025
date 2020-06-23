@@ -34,10 +34,12 @@ public class BulletScript : MonoBehaviour
         }
         if (moveDirection == Consts.MoveDirection.left)
         {
+            transform.localScale = new Vector3(-1,1,1);
             transform.localPosition = new Vector3(pos.x - 30, posY, 0);
         }
         else if (moveDirection == Consts.MoveDirection.right)
         {
+            transform.localScale = new Vector3(1, 1, 1);
             transform.localPosition = new Vector3(pos.x + 30, posY, 0);
         }
 

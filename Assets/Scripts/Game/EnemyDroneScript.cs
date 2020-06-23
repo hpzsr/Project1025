@@ -10,7 +10,7 @@ public class EnemyDroneScript : MonoBehaviour {
     public Image blood_img;
 
     bool isDie = false;
-    float bloodWidth;
+    // float bloodWidth;
     float fullBlood = 10;
     float curBlood;
 
@@ -25,7 +25,7 @@ public class EnemyDroneScript : MonoBehaviour {
 
 	void Start () {
         curBlood = fullBlood;
-        bloodWidth = blood_img.GetComponent<RectTransform>().sizeDelta.x;
+        // bloodWidth = blood_img.GetComponent<RectTransform>().sizeDelta.x;
 
         EnemyManager.addEnemyDrone(gameObject.GetComponent<EnemyDroneScript>());
 	}

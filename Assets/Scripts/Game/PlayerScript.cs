@@ -125,9 +125,9 @@ public class PlayerScript : MonoBehaviour
         {
             changePlayerPos(0, curJumpPower);
             curJumpPower -= 0.5f;
-            if (transform.position.y < 0 )
+            if (transform.position.y < 20 )
             {
-                transform.position = new Vector3(transform.position.x, 0, 0);
+                transform.position = new Vector3(transform.position.x, 20, 0);
                 setState(Consts.PlayerState.idle);
                 curJumpPower = jumpPower;
             }
@@ -171,7 +171,7 @@ public class PlayerScript : MonoBehaviour
         // 左移
         if (x < 0)
         {
-            if(transform.localPosition.x < (-Screen.width / 2 + Screen.width * playerNotChangePosRatio_x))
+            if(transform.position.x < Screen.width * playerNotChangePosRatio_x)
             {
                 BgScript.s_instance.move(-x,y);
             }
@@ -183,7 +183,7 @@ public class PlayerScript : MonoBehaviour
         // 右移
         else if (x > 0)
         {
-            if (transform.localPosition.x > (Screen.width / 2 - Screen.width * playerNotChangePosRatio_x))
+            if (transform.position.x > Screen.width * (1 - playerNotChangePosRatio_x))
             {
                 BgScript.s_instance.move(-x, y);
             }
@@ -196,12 +196,26 @@ public class PlayerScript : MonoBehaviour
         // 下移
         if(y < 0)
         {
-            transform.localPosition += new Vector3(0, y, 0);
+            if (transform.position.y < 20)
+            {
+                BgScript.s_instance.move(0, y);
+            }
+            else
+            {
+                transform.localPosition += new Vector3(0, y, 0);
+            }
         }
         // 上移
         else if (y > 0)
         {
-            transform.localPosition += new Vector3(0, y, 0);
+            if (transform.position.y > Screen.height * (1 - playerNotChangePosRatio_x))
+            {
+                BgScript.s_instance.move(0, -y);
+            }
+            else
+            {
+                transform.localPosition += new Vector3(0, y, 0);
+            }
         }
     }
 
