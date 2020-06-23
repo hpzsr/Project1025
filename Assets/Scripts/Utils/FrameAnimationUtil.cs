@@ -55,6 +55,7 @@ public class FrameData
 
 public class FrameAnimationUtil : MonoBehaviour
 {
+    // 动画信息面板
     bool isShowInfo = true;
     Text infoBoard = null;
 
@@ -236,7 +237,7 @@ public class FrameAnimationUtil : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("Timer_normal image为空  " + frameDataList[i].path);
+                    //Debug.LogError("Timer_normal image为空  " + frameDataList[i].path);
                     //stopAnimation(frameDataList[i].image);
                 }
             }

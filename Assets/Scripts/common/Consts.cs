@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 // 英雄配置表字段
 public class HeroEntityData
 {
@@ -32,23 +31,28 @@ public class HeroData
 
 public class Consts
 {
+    public static float ScreenWidth = 960;
+    public static float ScreenHeight = 540;
+
     public enum PlayerState
     {
         idle,
         run_left,
         run_right,
         jump,
-        back_jump,
         climb,
         crouch,
         hurt,
         shoot,
+        sprint,
     }
 
     public enum MoveDirection
     {
         left,
         right,
+        up,
+        down,
     }
 
     public enum FrameAnimationSpeed

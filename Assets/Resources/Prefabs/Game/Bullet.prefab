@@ -87,5 +87,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0957a74ee976644946c15935e26fa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bullet_img: {fileID: 0}
   moveDirection: 0

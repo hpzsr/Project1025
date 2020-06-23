@@ -10,12 +10,11 @@ public class PlayerScript : MonoBehaviour
 
     public Image self_img;
     public Text text_playerState;
-    Consts.PlayerState playerState;
-    Consts.MoveDirection moveDirection = Consts.MoveDirection.right;
+    public Consts.PlayerState playerState;
+    public Consts.MoveDirection moveDirection = Consts.MoveDirection.right;
 
-    float playerScale = 2.0f;
+    float playerScale = 1.0f;
     float runSpeed = 3.0f;
-
     float jumpPower = 10.0f;
     float curJumpPower = 10.0f;
 
@@ -69,6 +68,7 @@ public class PlayerScript : MonoBehaviour
                         else if (playerState == Consts.PlayerState.crouch)
                         {
                             setMoveDirection(direction);
+
                             // 蹲下时只移动方向，不进行位移
                             // move(false);         
                         }
@@ -104,6 +104,13 @@ public class PlayerScript : MonoBehaviour
                         
                         break;
                     }
+
+                // 闪现
+                case Consts.PlayerState.sprint:
+                    {
+                        setState(Consts.PlayerState.sprint);
+                        break;
+                    }
             }
         }
     }
@@ -116,11 +123,11 @@ public class PlayerScript : MonoBehaviour
         // 跳跃
         if (playerState == Consts.PlayerState.jump)
         {
-            transform.localPosition += new Vector3(0, curJumpPower, 0);
+            changePlayerPos(0, curJumpPower);
             curJumpPower -= 0.5f;
-            if (transform.localPosition.y < -140)
+            if (transform.position.y < 0 )
             {
-                transform.localPosition = new Vector3(transform.localPosition.x,-140,0);
+                transform.position = new Vector3(transform.position.x, 0, 0);
                 setState(Consts.PlayerState.idle);
                 curJumpPower = jumpPower;
             }
@@ -133,23 +140,68 @@ public class PlayerScript : MonoBehaviour
         {
             if (playerState == Consts.PlayerState.run_left)
             {
-                transform.localPosition -= new Vector3(runSpeed, 0, 0);
+                changePlayerPos(-runSpeed,0);
             }
             else if (playerState == Consts.PlayerState.run_right)
             {
-                transform.localPosition += new Vector3(runSpeed, 0, 0);
+                changePlayerPos(runSpeed, 0);
             }
         }
         else
         {
             if(moveDirection == Consts.MoveDirection.left)
             {
-                transform.localPosition -= new Vector3(runSpeed, 0, 0);
+                changePlayerPos(-runSpeed, 0);
+            }
+            else if (moveDirection == Consts.MoveDirection.right)
+            {
+                changePlayerPos(runSpeed, 0);
+            }
+        }
+    }
+
+    void changePlayerPos(float x,float y)
+    {
+        // 人物移动范围：离左右两边的距离为屏幕宽度的X倍
+        float playerNotChangePosRatio_x = 0.25f;
+        
+        // 人物移动范围：离上下两边的距离为屏幕高度的X倍
+        float playerNotChangePosRatio_y = 0.25f;
+
+        // 左移
+        if (x < 0)
+        {
+            if(transform.localPosition.x < (-Screen.width / 2 + Screen.width * playerNotChangePosRatio_x))
+            {
+                BgScript.s_instance.move(-x,y);
             }
             else
             {
-                transform.localPosition += new Vector3(runSpeed, 0, 0);
+                transform.localPosition += new Vector3(x, 0, 0);
             }
+        }
+        // 右移
+        else if (x > 0)
+        {
+            if (transform.localPosition.x > (Screen.width / 2 - Screen.width * playerNotChangePosRatio_x))
+            {
+                BgScript.s_instance.move(-x, y);
+            }
+            else
+            {
+                transform.localPosition += new Vector3(x, 0, 0);
+            }
+        }
+
+        // 下移
+        if(y < 0)
+        {
+            transform.localPosition += new Vector3(0, y, 0);
+        }
+        // 上移
+        else if (y > 0)
+        {
+            transform.localPosition += new Vector3(0, y, 0);
         }
     }
 
@@ -160,7 +212,7 @@ public class PlayerScript : MonoBehaviour
         {
             transform.localScale = new Vector3(-playerScale, playerScale, playerScale);
         }
-        else
+        else if (moveDirection == Consts.MoveDirection.right)
         {
             transform.localScale = new Vector3(playerScale, playerScale, playerScale);
         }
@@ -202,12 +254,6 @@ public class PlayerScript : MonoBehaviour
                     break;
                 }
 
-            case Consts.PlayerState.back_jump:
-                {
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/back-jump-", Consts.FrameAnimationSpeed.low);
-                    break;
-                }
-
             case Consts.PlayerState.climb:
                 {
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/climb-", Consts.FrameAnimationSpeed.low);
@@ -232,6 +278,33 @@ public class PlayerScript : MonoBehaviour
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/shoot-", Consts.FrameAnimationSpeed.low, false,() => {
                         setState(Consts.PlayerState.idle);
                     });
+
+                    break;
+                }
+
+            case Consts.PlayerState.sprint:
+                {
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/sprint-", Consts.FrameAnimationSpeed.low);
+
+                    // 闪现
+                    {
+                        self_img.color = new Color(1, 1, 1, 0.5f);
+
+                        float targetX = transform.localPosition.x;
+                        if(moveDirection == Consts.MoveDirection.left)
+                        {
+                            targetX = transform.localPosition.x - 200;
+                        }
+                        else if (moveDirection == Consts.MoveDirection.right)
+                        {
+                            targetX = transform.localPosition.x + 200;
+                        }
+                        transform.GetComponent<RectTransform>().DOAnchorPosX(targetX, 0.3f, false).OnComplete(() =>
+                        {
+                            self_img.color = new Color(1, 1, 1, 1);
+                            setState(Consts.PlayerState.idle);
+                        });
+                    }
 
                     break;
                 }

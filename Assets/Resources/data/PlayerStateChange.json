@@ -8,6 +8,7 @@
 {"oldState":"idle","newState":"crouch"},
 {"oldState":"idle","newState":"hurt"},
 {"oldState":"idle","newState":"shoot"},
+{"oldState":"idle","newState":"sprint"},
 {"oldState":"run_left","newState":"idle"},
 {"oldState":"run_left","newState":"run_right"},
 {"oldState":"run_left","newState":"jump"},
@@ -15,6 +16,7 @@
 {"oldState":"run_left","newState":"crouch"},
 {"oldState":"run_left","newState":"hurt"},
 {"oldState":"run_left","newState":"shoot"},
+{"oldState":"run_left","newState":"sprint"},
 {"oldState":"run_right","newState":"idle"},
 {"oldState":"run_right","newState":"run_left"},
 {"oldState":"run_right","newState":"jump"},
@@ -22,12 +24,12 @@
 {"oldState":"run_right","newState":"crouch"},
 {"oldState":"run_right","newState":"hurt"},
 {"oldState":"run_right","newState":"shoot"},
+{"oldState":"run_right","newState":"sprint"},
 {"oldState":"jump","newState":"run_left"},
 {"oldState":"jump","newState":"run_right"},
 {"oldState":"jump","newState":"jump"},
 {"oldState":"jump","newState":"hurt"},
 {"oldState":"jump","newState":"shoot"},
-{"oldState":"back_jump","newState":"hurt"},
 {"oldState":"climb","newState":"idle"},
 {"oldState":"climb","newState":"climb"},
 {"oldState":"climb","newState":"crouch"},
@@ -38,5 +40,6 @@
 {"oldState":"crouch","newState":"hurt"},
 {"oldState":"crouch","newState":"shoot"},
 {"oldState":"hurt","newState":"idle"},
-{"oldState":"shoot","newState":"idle"}
+{"oldState":"shoot","newState":"idle"},
+{"oldState":"sprint","newState":"idle"}
 ]

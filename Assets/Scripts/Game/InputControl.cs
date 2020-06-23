@@ -61,6 +61,11 @@ public class InputControl : MonoBehaviour
             {
                 inputCallBack(Consts.PlayerState.shoot);
             }
+            // 闪现
+            else if (Input.GetKeyDown(KeyCode.N))
+            {
+                inputCallBack(Consts.PlayerState.sprint);
+            }
         }
     }
 }

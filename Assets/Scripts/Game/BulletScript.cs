@@ -7,7 +7,9 @@ public class BulletScript : MonoBehaviour
 {
     Image self_img;
     public Consts.MoveDirection moveDirection;
+
     float moveSpeed = 6.0f;
+    float damage = 4;
 
     public static BulletScript Create(Transform parent,Consts.MoveDirection _moveDirection)
     {
@@ -23,17 +25,25 @@ public class BulletScript : MonoBehaviour
         self_img = gameObject.GetComponent<Image>();
         FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/bullet/bullet-", Consts.FrameAnimationSpeed.low);
 
+        float parentHeight = PlayerScript.s_instance.GetComponent<RectTransform>().sizeDelta.y;
         Vector3 pos = PlayerScript.s_instance.transform.localPosition;
+        float posY = pos.y + parentHeight * 0.6f;
+        if (PlayerScript.s_instance.playerState == Consts.PlayerState.crouch)
+        {
+            posY = pos.y + parentHeight * 0.35f;
+        }
         if (moveDirection == Consts.MoveDirection.left)
         {
-            transform.localPosition = new Vector3(pos.x - 30, pos.y + 10,0);
+            transform.localPosition = new Vector3(pos.x - 30, posY, 0);
         }
         else if (moveDirection == Consts.MoveDirection.right)
         {
-            transform.localPosition = new Vector3(pos.x + 30, pos.y + 10, 0);
+            transform.localPosition = new Vector3(pos.x + 30, posY, 0);
         }
+
+        transform.SetParent(GameObject.Find("Canvas/GameLayer/bg/distance1").transform);
     }
-    
+
     void Update()
     {
         if(moveDirection == Consts.MoveDirection.left)
@@ -45,13 +55,13 @@ public class BulletScript : MonoBehaviour
             transform.localPosition += new Vector3(moveSpeed, 0, 0);
         }
 
-        float x = transform.localPosition.x;
-        if (x < -(Screen.width / 2 + 100))
+        float x = transform.position.x;
+        if (x < 0)
         {
             DestroySelf();
             return;
         }
-        else if (x > Screen.width / 2 + 100)
+        else if (x > Screen.width)
         {
             DestroySelf();
             return;
@@ -67,8 +77,10 @@ public class BulletScript : MonoBehaviour
             EnemyDroneScript script = EnemyManager.enemyDroneList[i];
             if (CommonUtil.uiPosIsInContent(transform.localPosition, script.transform))
             {
-                script.hurt();
-                DestroySelf();
+                if(script.hurt(damage))
+                {
+                    DestroySelf();
+                }
             }
         }
     }
