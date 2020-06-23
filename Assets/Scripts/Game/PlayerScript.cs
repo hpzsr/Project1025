@@ -125,12 +125,39 @@ public class PlayerScript : MonoBehaviour
         {
             changePlayerPos(0, curJumpPower);
             curJumpPower -= 0.5f;
-            if (transform.position.y < 20 )
+            curJumpPower = curJumpPower < -20 ? -20 : curJumpPower;
+            if (curJumpPower <= 0)
             {
-                transform.position = new Vector3(transform.position.x, 20, 0);
-                setState(Consts.PlayerState.idle);
-                curJumpPower = jumpPower;
+                Transform road = RoadScript.s_instance.checkStandRoad(transform.position);
+                if (road != null)
+                {
+                    transform.position = new Vector3(transform.position.x, road.position.y, 0);
+                    setState(Consts.PlayerState.idle);
+                    curJumpPower = jumpPower;
+                }
             }
+        }
+
+        // 降落时检测是否落地
+        switch (playerState)
+        {
+            case Consts.PlayerState.idle:
+            case Consts.PlayerState.run_left:
+            case Consts.PlayerState.run_right:
+                {
+                    // 脚下没路则设为降落状态
+                    Transform road = RoadScript.s_instance.checkStandRoad(transform.position);
+                    if (road == null)
+                    {
+                        curJumpPower = 0;
+                        playerState = Consts.PlayerState.jump;
+                    }
+                    else
+                    {
+                        transform.position = new Vector3(transform.position.x, road.position.y, 0);
+                    }
+                    break;
+                }
         }
     }
 
