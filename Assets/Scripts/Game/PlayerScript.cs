@@ -18,6 +18,7 @@ public class PlayerScript : MonoBehaviour
     float jumpPower = 10.0f;
     float curJumpPower = 10.0f;
     public float runSpeed = 3.0f;
+    public float climbSpeed = 1.5f;
     public float damage = 4;
 
     void Start()
@@ -30,6 +31,196 @@ public class PlayerScript : MonoBehaviour
 
         width = transform.GetComponent<RectTransform>().sizeDelta.x * 0.5f;
         height = transform.GetComponent<RectTransform>().sizeDelta.y;
+    }
+
+    void inputCallBack(InputControl.KeyBoard key)
+    {
+        switch(key)
+        {
+            // 跳跃、进入爬梯子状态
+            case InputControl.KeyBoard.Down_W:
+                {
+                    Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
+                    if(ladder)
+                    {
+                        setState(Consts.PlayerState.climb);
+                    }
+                    else
+                    {
+                        if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.jump))
+                        {
+                            if (playerState == Consts.PlayerState.crouch)
+                            {
+                                setState(Consts.PlayerState.idle);
+                            }
+                            else
+                            {
+                                setState(Consts.PlayerState.jump);
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+            // 向上爬梯子
+            case InputControl.KeyBoard.Keep_W:
+                {
+                    if(playerState == Consts.PlayerState.climb)
+                    {
+                        changePlayerPos(0, climbSpeed);
+                        Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
+                        if (!ladder)
+                        {
+                            setState(Consts.PlayerState.idle);
+                        }
+                    }
+                        
+                    break;
+                }
+
+            // 暂停向上爬梯子
+            case InputControl.KeyBoard.Up_W:
+                {
+                    Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
+                    if (ladder)
+                    {
+                        FrameAnimationUtil.getInstance().stopAnimation(self_img);
+                    }
+                    break;
+                }
+
+            // 左右移动
+            case InputControl.KeyBoard.Keep_A:
+            case InputControl.KeyBoard.Keep_D:
+                {
+                    Consts.MoveDirection direction = key == InputControl.KeyBoard.Keep_A ? Consts.MoveDirection.left : Consts.MoveDirection.right;
+                    Consts.PlayerState _playerState = key == InputControl.KeyBoard.Keep_A ? Consts.PlayerState.run_left : Consts.PlayerState.run_right;
+
+                    if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, _playerState))
+                    {
+                        if (playerState == Consts.PlayerState.jump)
+                        {
+                            setMoveDirection(direction);
+                            move(false);
+                        }
+                        else if (playerState == Consts.PlayerState.drop)
+                        {
+                            setMoveDirection(direction);
+                            move(false);
+                        }
+                        else if (playerState == Consts.PlayerState.crouch)
+                        {
+                            setState(_playerState);
+                        }
+                        else
+                        {
+                            setState(_playerState);
+                        }
+                    }
+
+                    break;
+                }
+
+            // 停止左右移动
+            case InputControl.KeyBoard.Up_A:
+            case InputControl.KeyBoard.Up_D:
+                {
+                    Consts.PlayerState _playerState = key == InputControl.KeyBoard.Up_A ? Consts.PlayerState.run_left : Consts.PlayerState.run_right;
+
+                    if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.idle))
+                    {
+                        if (playerState == _playerState)
+                        {
+                            setState(Consts.PlayerState.idle);
+                        }
+                    }
+                        
+                    break;
+                }
+
+            // 蹲下、进入爬梯子状态
+            case InputControl.KeyBoard.Down_S:
+                {
+                    Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
+                    if (ladder)
+                    {
+                        setState(Consts.PlayerState.climb);
+                    }
+                    else
+                    {
+                        if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.crouch))
+                        {
+                            setState(Consts.PlayerState.crouch);
+                        }
+                    }
+
+                    break;
+                }
+
+            // 往下爬梯子
+            case InputControl.KeyBoard.Keep_S:
+                {
+                    if (playerState == Consts.PlayerState.climb)
+                    {
+                        changePlayerPos(0, -climbSpeed);
+                        Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
+                        if (!ladder)
+                        {
+                            setState(Consts.PlayerState.idle);
+                        }
+                    }
+                    break;
+                }
+
+            // 暂停向下爬梯子
+            case InputControl.KeyBoard.Up_S:
+                {
+                    Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
+                    if (ladder)
+                    {
+                        FrameAnimationUtil.getInstance().stopAnimation(self_img);
+                    }
+                    break;
+                }
+
+            // 闪现
+            case InputControl.KeyBoard.Down_N:
+                {
+                    if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.sprint))
+                    {
+                        setState(Consts.PlayerState.sprint);
+                    }
+                        
+                    break;
+                }
+
+            // 射击
+            case InputControl.KeyBoard.Down_M:
+                {
+                    if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState,Consts.PlayerState.shoot))
+                    {
+                        switch (playerState)
+                        {
+                            case Consts.PlayerState.jump:
+                            case Consts.PlayerState.drop:
+                            case Consts.PlayerState.crouch:
+                                {
+                                    BulletScript.Create(transform.parent, moveDirection);
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    setState(Consts.PlayerState.shoot);
+                                    break;
+                                }
+                        }
+                    }
+
+                    break;
+                }
+        }
     }
 
     void inputCallBack(Consts.PlayerState _playerState)

@@ -64,4 +64,25 @@ public class RoadScript : MonoBehaviour
 
         return null;
     }
+
+    public Transform checkLadder(Vector3 vec3)
+    {
+        for (int i = 0; i < ladderList.Count; i++)
+        {
+            Vector3 roadPos = ladderList[i].m_transform.localPosition;
+            float roadWidth = ladderList[i].m_width;
+            float jili_x = Mathf.Abs(roadPos.x - vec3.x);
+            // 人物和梯子横向距离<10即可认为是爬梯子
+            if(jili_x < 10)
+            {
+                // 为什么要-5？防止梯子高于地面，导致爬不上去
+                if ((vec3.y >= (roadPos.y - 5)) && (vec3.y <= (roadPos.y + roadWidth)))
+                {
+                    return ladderList[i].m_transform;
+                }
+            }
+        }
+
+        return null;
+    }
 }
