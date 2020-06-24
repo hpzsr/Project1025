@@ -10,6 +10,33 @@ using UnityEngine.UI;
 public class CommonUtil
 {
     static Material ImageGray = null;
+    static long time_start = 0;
+
+    // 13位时间戳：毫秒
+    public static long getTimeStamp_Millisecond()
+    {
+        DateTime original = new DateTime(1970, 1, 1, 0, 0, 0);
+        return (long)(DateTime.Now.ToUniversalTime() - original).TotalMilliseconds;
+    }
+
+    // 10位时间戳：秒
+    public static long getTimeStamp_Second()
+    {
+        DateTime original = new DateTime(1970, 1, 1, 0, 0, 0);
+        return (long)(DateTime.Now.ToUniversalTime() - original).TotalSeconds;
+    }
+
+    // 计时开始
+    public static void jishi_start()
+    {
+        time_start = getTimeStamp_Millisecond();
+    }
+
+    // 计时结束
+    public static long jishi_end()
+    {
+        return getTimeStamp_Millisecond() - time_start;
+    }
 
     // 格式2017/7/12 15:05:03
     public static string getCurTime()

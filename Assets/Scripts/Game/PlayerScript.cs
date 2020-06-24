@@ -43,6 +43,7 @@ public class PlayerScript : MonoBehaviour
                     Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
                     if(ladder)
                     {
+                        // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
                         setState(Consts.PlayerState.climb);
                     }
                     else
@@ -145,6 +146,7 @@ public class PlayerScript : MonoBehaviour
                     Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
                     if (ladder)
                     {
+                        // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
                         setState(Consts.PlayerState.climb);
                     }
                     else
@@ -232,7 +234,6 @@ public class PlayerScript : MonoBehaviour
                 // 静止
                 case Consts.PlayerState.idle:
                     {
-                        Debug.Log("设为静止");
                         setState(Consts.PlayerState.idle);
                         break;
                     }
@@ -460,7 +461,7 @@ public class PlayerScript : MonoBehaviour
             }
             else
             {
-                transform.position += new Vector3(x, 0, 0);
+                transform.localPosition += new Vector3(x, 0, 0);
             }
         }
         // 右移
@@ -632,7 +633,6 @@ public class PlayerScript : MonoBehaviour
                         {
                             targetX = transform.position.x + 200;
                         }
-                        //Debug.Log(transform.localPosition.x + "  " + targetX);
                         transform.GetComponent<RectTransform>().DOMoveX(targetX, 0.3f, false).OnComplete(() =>
                         {
                             self_img.color = new Color(1, 1, 1, 1);

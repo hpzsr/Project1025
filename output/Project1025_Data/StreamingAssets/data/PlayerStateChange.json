@@ -37,7 +37,6 @@
 {"oldState":"jump","newState":"shoot"},
 {"oldState":"jump","newState":"drop"},
 {"oldState":"climb","newState":"idle"},
-{"oldState":"climb","newState":"climb"},
 {"oldState":"climb","newState":"crouch"},
 {"oldState":"climb","newState":"hurt"},
 {"oldState":"crouch","newState":"jump"},
