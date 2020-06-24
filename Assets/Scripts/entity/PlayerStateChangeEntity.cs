@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,7 +29,14 @@ public class PlayerStateChangeEntity
 
 	void init()
 	{
-		heroList = JsonUtils.loadJsonToList<PlayerStateChangeEntityData>("PlayerStateChange");
+        try
+        {
+            heroList = JsonUtils.loadJsonToList<PlayerStateChangeEntityData>("PlayerStateChange");
+        }
+        catch(Exception ex)
+        {
+            LogUtil.s_instance.log(ex.ToString());
+        }
 	}
 
 	public bool checkIsCanChange(Consts.PlayerState oldState, Consts.PlayerState newState)

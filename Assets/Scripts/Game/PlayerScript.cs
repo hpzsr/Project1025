@@ -9,23 +9,27 @@ public class PlayerScript : MonoBehaviour
     public static PlayerScript s_instance = null;
 
     public Image self_img;
-    public Text text_playerState;
     public Consts.PlayerState playerState;
     public Consts.MoveDirection moveDirection = Consts.MoveDirection.right;
 
+    float width;
+    float height;
     float playerScale = 1.0f;
-    float runSpeed = 3.0f;
     float jumpPower = 10.0f;
     float curJumpPower = 10.0f;
+    public float runSpeed = 3.0f;
+    public float damage = 4;
 
     void Start()
     {
         s_instance = this;
-
-        Application.targetFrameRate = 60;
+        
         InputControl.registerCallBack(inputCallBack);
 
         setState(Consts.PlayerState.idle);
+
+        width = transform.GetComponent<RectTransform>().sizeDelta.x * 0.5f;
+        height = transform.GetComponent<RectTransform>().sizeDelta.y;
     }
 
     void inputCallBack(Consts.PlayerState _playerState)
@@ -37,6 +41,7 @@ public class PlayerScript : MonoBehaviour
                 // 静止
                 case Consts.PlayerState.idle:
                     {
+                        Debug.Log("设为静止");
                         setState(Consts.PlayerState.idle);
                         break;
                     }
@@ -65,12 +70,19 @@ public class PlayerScript : MonoBehaviour
                             setMoveDirection(direction);
                             move(false);
                         }
-                        else if (playerState == Consts.PlayerState.crouch)
+                        else if (playerState == Consts.PlayerState.drop)
                         {
                             setMoveDirection(direction);
+                            move(false);
+                        }
+                        else if (playerState == Consts.PlayerState.crouch)
+                        {
+                            // setMoveDirection(direction);
 
                             // 蹲下时只移动方向，不进行位移
-                            // move(false);         
+                            // move(false);   
+
+                            setState(_playerState);
                         }
                         else
                         {
@@ -89,17 +101,21 @@ public class PlayerScript : MonoBehaviour
                 // 开枪
                 case Consts.PlayerState.shoot:
                     {
-                        if (playerState == Consts.PlayerState.jump)
+                        switch(playerState)
                         {
-                            BulletScript.Create(transform.parent, moveDirection);
-                        }
-                        else if (playerState == Consts.PlayerState.crouch)
-                        {
-                            BulletScript.Create(transform.parent, moveDirection);
-                        }
-                        else
-                        {
-                            setState(Consts.PlayerState.shoot);
+                            case Consts.PlayerState.jump:
+                            case Consts.PlayerState.drop:
+                            case Consts.PlayerState.crouch:
+                                {
+                                    BulletScript.Create(transform.parent, moveDirection);
+                                    break;
+                                }
+
+                            default:
+                                {
+                                    setState(Consts.PlayerState.shoot);
+                                    break;
+                                }
                         }
                         
                         break;
@@ -109,6 +125,33 @@ public class PlayerScript : MonoBehaviour
                 case Consts.PlayerState.sprint:
                     {
                         setState(Consts.PlayerState.sprint);
+                        break;
+                    }
+
+                // 降落
+                case Consts.PlayerState.drop:
+                    {
+                        setState(Consts.PlayerState.drop);
+                        break;
+                    }
+
+                // 停止左移
+                case Consts.PlayerState.stop_run_left:
+                    {
+                        if(playerState == Consts.PlayerState.run_left)
+                        {
+                            setState(Consts.PlayerState.idle);
+                        }
+                        break;
+                    }
+
+                // 停止右移
+                case Consts.PlayerState.stop_run_right:
+                    {
+                        if (playerState == Consts.PlayerState.run_right)
+                        {
+                            setState(Consts.PlayerState.idle);
+                        }
                         break;
                     }
             }
@@ -125,20 +168,26 @@ public class PlayerScript : MonoBehaviour
         {
             changePlayerPos(0, curJumpPower);
             curJumpPower -= 0.5f;
-            curJumpPower = curJumpPower < -20 ? -20 : curJumpPower;
             if (curJumpPower <= 0)
             {
-                Transform road = RoadScript.s_instance.checkStandRoad(transform.position);
-                if (road != null)
-                {
-                    transform.position = new Vector3(transform.position.x, road.position.y, 0);
-                    setState(Consts.PlayerState.idle);
-                    curJumpPower = jumpPower;
-                }
+                inputCallBack(Consts.PlayerState.drop);
+            }
+        }
+        else if (playerState == Consts.PlayerState.drop)
+        {
+            changePlayerPos(0, curJumpPower);
+            curJumpPower -= 0.5f;
+            curJumpPower = curJumpPower < -20 ? -20 : curJumpPower;     // 控制最大下落速度
+            Transform road = RoadScript.s_instance.checkStandRoad(transform.localPosition);
+            if (road != null)
+            {
+                transform.position = new Vector3(transform.position.x, road.position.y, 0);
+                setState(Consts.PlayerState.idle);
+                curJumpPower = jumpPower;
             }
         }
 
-        // 降落时检测是否落地
+        // 检测是否落地
         switch (playerState)
         {
             case Consts.PlayerState.idle:
@@ -146,11 +195,10 @@ public class PlayerScript : MonoBehaviour
             case Consts.PlayerState.run_right:
                 {
                     // 脚下没路则设为降落状态
-                    Transform road = RoadScript.s_instance.checkStandRoad(transform.position);
+                    Transform road = RoadScript.s_instance.checkStandRoad(transform.localPosition);
                     if (road == null)
                     {
-                        curJumpPower = 0;
-                        playerState = Consts.PlayerState.jump;
+                        inputCallBack(Consts.PlayerState.drop);
                     }
                     else
                     {
@@ -192,19 +240,36 @@ public class PlayerScript : MonoBehaviour
         // 人物移动范围：离左右两边的距离为屏幕宽度的X倍
         float playerNotChangePosRatio_x = 0.25f;
         
-        // 人物移动范围：离上下两边的距离为屏幕高度的X倍
-        float playerNotChangePosRatio_y = 0.25f;
+        // 人物移动范围：离上边的距离为屏幕高度的X倍
+        float playerNotChangePosRatio_y_up = 0.35f;
+
+        // 人物移动范围：离下边的距离为屏幕高度的X倍
+        float playerNotChangePosRatio_y_down = 0.15f;
 
         // 左移
         if (x < 0)
         {
             if(transform.position.x < Screen.width * playerNotChangePosRatio_x)
             {
-                BgScript.s_instance.move(-x,y);
+                if(!BgScript.s_instance.moveX(-x))
+                {
+                    if (transform.position.x > width / 2)
+                    {
+                        transform.localPosition += new Vector3(x, 0, 0);
+                    }
+                    else
+                    {
+                        transform.position = new Vector3(width / 2, transform.position.y, 0);
+                    }
+                }
+                else
+                {
+                    transform.localPosition += new Vector3(x, 0, 0);
+                }
             }
             else
             {
-                transform.localPosition += new Vector3(x, 0, 0);
+                transform.position += new Vector3(x, 0, 0);
             }
         }
         // 右移
@@ -212,7 +277,21 @@ public class PlayerScript : MonoBehaviour
         {
             if (transform.position.x > Screen.width * (1 - playerNotChangePosRatio_x))
             {
-                BgScript.s_instance.move(-x, y);
+                if (!BgScript.s_instance.moveX(-x))
+                {
+                    if (transform.position.x < (Screen.width - width / 2))
+                    {
+                        transform.localPosition += new Vector3(x, 0, 0);
+                    }
+                    else
+                    {
+                        transform.position = new Vector3((Screen.width - width / 2), transform.position.y,0);
+                    }
+                }
+                else
+                {
+                    transform.localPosition += new Vector3(x, 0, 0);
+                }
             }
             else
             {
@@ -223,9 +302,16 @@ public class PlayerScript : MonoBehaviour
         // 下移
         if(y < 0)
         {
-            if (transform.position.y < 20)
+            if (transform.position.y < Screen.height * playerNotChangePosRatio_y_down)
             {
-                BgScript.s_instance.move(0, y);
+                if(!BgScript.s_instance.moveY(-y))
+                {
+                    transform.localPosition += new Vector3(0, y, 0);
+                }
+                else
+                {
+                    transform.localPosition += new Vector3(0, y, 0);
+                }
             }
             else
             {
@@ -235,9 +321,16 @@ public class PlayerScript : MonoBehaviour
         // 上移
         else if (y > 0)
         {
-            if (transform.position.y > Screen.height * (1 - playerNotChangePosRatio_x))
+            if (transform.position.y > Screen.height * (1 - playerNotChangePosRatio_y_up))
             {
-                BgScript.s_instance.move(0, -y);
+                if(BgScript.s_instance.moveY(-y))
+                {
+                    transform.localPosition += new Vector3(0, y, 0);
+                }
+                else
+                {
+                    transform.localPosition += new Vector3(0, y, 0);
+                }
             }
             else
             {
@@ -262,16 +355,17 @@ public class PlayerScript : MonoBehaviour
     public void setState(Consts.PlayerState _playerState)
     {
         playerState = _playerState;
-        text_playerState.text = _playerState.ToString();
 
         switch (_playerState)
         {
+            // 站立
             case Consts.PlayerState.idle:
                 {
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/idle-", Consts.FrameAnimationSpeed.low);
                     break;
                 }
-
+                
+            // 左跑
             case Consts.PlayerState.run_left:
                 {
                     setMoveDirection(Consts.MoveDirection.left);
@@ -280,6 +374,7 @@ public class PlayerScript : MonoBehaviour
                     break;
                 }
 
+            // 右跑
             case Consts.PlayerState.run_right:
                 {
                     setMoveDirection(Consts.MoveDirection.right);
@@ -288,6 +383,7 @@ public class PlayerScript : MonoBehaviour
                     break;
                 }
 
+            // 跳跃
             case Consts.PlayerState.jump:
                 {
                     curJumpPower = jumpPower;
@@ -295,24 +391,28 @@ public class PlayerScript : MonoBehaviour
                     break;
                 }
 
+            // 爬楼梯
             case Consts.PlayerState.climb:
                 {
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/climb-", Consts.FrameAnimationSpeed.low);
                     break;
                 }
 
+            // 蹲下
             case Consts.PlayerState.crouch:
                 {
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/crouch-", Consts.FrameAnimationSpeed.low);
                     break;
                 }
 
+            // 被攻击
             case Consts.PlayerState.hurt:
                 {
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/hurt-", Consts.FrameAnimationSpeed.low);
                     break;
                 }
 
+            // 射击
             case Consts.PlayerState.shoot:
                 {
                     BulletScript.Create(transform.parent, moveDirection);
@@ -323,29 +423,54 @@ public class PlayerScript : MonoBehaviour
                     break;
                 }
 
+            // 闪现
             case Consts.PlayerState.sprint:
                 {
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/sprint-", Consts.FrameAnimationSpeed.low);
 
-                    // 闪现
+                    // 位移
                     {
-                        self_img.color = new Color(1, 1, 1, 0.5f);
+                        self_img.color = new Color(1, 1, 1, 0.3f);
 
-                        float targetX = transform.localPosition.x;
+                        float targetX = transform.position.x;
                         if(moveDirection == Consts.MoveDirection.left)
                         {
-                            targetX = transform.localPosition.x - 200;
+                            targetX = transform.position.x - 200;
                         }
                         else if (moveDirection == Consts.MoveDirection.right)
                         {
-                            targetX = transform.localPosition.x + 200;
+                            targetX = transform.position.x + 200;
                         }
-                        transform.GetComponent<RectTransform>().DOAnchorPosX(targetX, 0.3f, false).OnComplete(() =>
+                        //Debug.Log(transform.localPosition.x + "  " + targetX);
+                        transform.GetComponent<RectTransform>().DOMoveX(targetX, 0.3f, false).OnComplete(() =>
                         {
                             self_img.color = new Color(1, 1, 1, 1);
                             setState(Consts.PlayerState.idle);
+
+                            // 如果闪现后不在屏幕内，则把坐标强制改到屏幕内
+                            if (!checkIsInScreen())
+                            {
+                                if (moveDirection == Consts.MoveDirection.left)
+                                {
+                                    transform.position = new Vector3(width / 2, transform.position.y, 0);
+                                }
+                                else if (moveDirection == Consts.MoveDirection.right)
+                                {
+                                    transform.position = new Vector3((Screen.width - width / 2), transform.position.y, 0);
+                                }
+                            }
                         });
                     }
+
+                    break;
+                }
+
+            // 降落
+            case Consts.PlayerState.drop:
+                {
+                    curJumpPower = 0;
+                    playerState = Consts.PlayerState.drop;
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/drop-", Consts.FrameAnimationSpeed.low);
 
                     break;
                 }
@@ -354,6 +479,17 @@ public class PlayerScript : MonoBehaviour
 
     bool checkCanChangeState(Consts.PlayerState oldState, Consts.PlayerState newState)
     {
+
+        return false;
+    }
+
+    bool checkIsInScreen()
+    {
+        Vector3 pos = transform.position;
+        if((pos.x >= 0) && (pos.x <= Screen.width) && (pos.y >= 0) && (pos.y <= Screen.height))
+        {
+            return true;
+        }
 
         return false;
     }

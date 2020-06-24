@@ -9,7 +9,6 @@ public class BulletScript : MonoBehaviour
     public Consts.MoveDirection moveDirection;
 
     float moveSpeed = 6.0f;
-    float damage = 4;
 
     public static BulletScript Create(Transform parent,Consts.MoveDirection _moveDirection)
     {
@@ -31,6 +30,10 @@ public class BulletScript : MonoBehaviour
         if (PlayerScript.s_instance.playerState == Consts.PlayerState.crouch)
         {
             posY = pos.y + parentHeight * 0.35f;
+        }
+        else if (PlayerScript.s_instance.playerState == Consts.PlayerState.drop)
+        {
+            posY = pos.y + parentHeight * 0.6f;
         }
         if (moveDirection == Consts.MoveDirection.left)
         {
@@ -77,9 +80,9 @@ public class BulletScript : MonoBehaviour
         for(int i = 0; i < EnemyManager.enemyDroneList.Count; i++)
         {
             EnemyDroneScript script = EnemyManager.enemyDroneList[i];
-            if (CommonUtil.uiPosIsInContent(transform.localPosition, script.transform))
+            if (CommonUtil.uiPosIsInContent(transform.position, script.transform))
             {
-                if(script.hurt(damage))
+                if(script.hurt(PlayerScript.s_instance.damage))
                 {
                     DestroySelf();
                 }

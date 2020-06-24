@@ -38,7 +38,7 @@ public class InputControl : MonoBehaviour
             // 停止左移
             else if (Input.GetKeyUp(KeyCode.A))
             {
-                inputCallBack(Consts.PlayerState.idle);
+                inputCallBack(Consts.PlayerState.stop_run_left);
             }
             // 蹲下
             else if (Input.GetKeyDown(KeyCode.S))
@@ -53,7 +53,7 @@ public class InputControl : MonoBehaviour
             // 停止右移
             else if (Input.GetKeyUp(KeyCode.D))
             {
-                inputCallBack(Consts.PlayerState.idle);
+                inputCallBack(Consts.PlayerState.stop_run_right);
             }
 
             // 开枪

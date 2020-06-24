@@ -49,8 +49,9 @@ public class RoadScript : MonoBehaviour
     {
         for(int i = 0; i < roadList.Count; i++)
         {
-            Vector3 roadPos = roadList[i].m_transform.position;
+            Vector3 roadPos = roadList[i].m_transform.localPosition;
             float roadWidth = roadList[i].m_width;
+            //Debug.Log(vec3 + "  " + roadList[i].m_transform.localPosition + roadWidth);
             if ((vec3.x >= roadPos.x) && (vec3.x <= (roadPos.x + roadWidth)))
             {
                 float jily_y = roadPos.y - vec3.y;

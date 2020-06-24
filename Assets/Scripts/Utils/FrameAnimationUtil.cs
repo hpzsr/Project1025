@@ -56,7 +56,7 @@ public class FrameData
 public class FrameAnimationUtil : MonoBehaviour
 {
     // 动画信息面板
-    bool isShowInfo = true;
+    bool isShowInfo = false;
     Text infoBoard = null;
 
     public static FrameAnimationUtil instance = null;

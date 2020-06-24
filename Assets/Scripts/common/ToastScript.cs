@@ -21,7 +21,7 @@ public class ToastScript : MonoBehaviour {
         obj.transform.Find("Text").GetComponent<Text>().text = text;
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(text.Length * 30, 50);
 
-        obj.transform.DOLocalMove(new Vector3(0, 200, 0), 1).OnComplete(() => {
+        obj.transform.DOLocalMove(new Vector3(0, 200, 0), 2).OnComplete(() => {
             Destroy(obj);
         });
     }

@@ -31,8 +31,30 @@ public class HeroData
 
 public class Consts
 {
-    public static float ScreenWidth = 960;
-    public static float ScreenHeight = 540;
+    public static float DevScreenWidth = 960;
+    public static float DevScreenHeight = 540;
+
+    public static float getWidth()
+    {
+        // 如果设备比设计长，则使用设备宽度,否则使用设计宽度
+        if((Screen.width / Screen.height) >= (DevScreenWidth / DevScreenHeight))
+        {
+            return Screen.width;
+        }
+
+        return DevScreenWidth;
+    }
+
+    public static float getHeight()
+    {
+        // 如果设备比设计长，则使用设备高度,否则使用设计高度
+        if (Screen.width / Screen.height > DevScreenWidth / DevScreenHeight)
+        {
+            return DevScreenHeight;
+        }
+
+        return Screen.height;
+    }
 
     public enum PlayerState
     {
@@ -45,6 +67,10 @@ public class Consts
         hurt,
         shoot,
         sprint,
+        drop,
+
+        stop_run_left,
+        stop_run_right,
     }
 
     public enum MoveDirection

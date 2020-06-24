@@ -347,8 +347,8 @@ public class CommonUtil
 
     static public bool uiPosIsInContent(Vector2 vec2, Transform content)
     {
-        float x = content.transform.localPosition.x;
-        float y = content.transform.localPosition.y;
+        float x = content.transform.position.x;
+        float y = content.transform.position.y;
 
         float width = content.GetComponent<RectTransform>().sizeDelta.x;
         float height = content.GetComponent<RectTransform>().sizeDelta.y;

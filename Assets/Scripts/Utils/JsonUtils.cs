@@ -11,8 +11,10 @@ public class JsonUtils
 {
     static public List<T> loadJsonToList<T>(string jsonName)
     {
-		StreamReader streamReader = new StreamReader(Application.dataPath + "/Resources/data/" + jsonName + ".json");
-		string jsonData = streamReader.ReadToEnd();
+		//StreamReader streamReader = new StreamReader(Application.dataPath + "/Resources/data/" + jsonName + ".json");
+        StreamReader streamReader = new StreamReader(Application.streamingAssetsPath + "/data/" + jsonName + ".json");
+
+        string jsonData = streamReader.ReadToEnd();
 		return JsonConvert.DeserializeObject<List<T>>(jsonData);
 	}
 }

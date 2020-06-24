@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,7 +43,7 @@ public class EnemyDroneScript : MonoBehaviour {
         }
 
         curBlood -= damage;
-        if(curBlood < 0)
+        if(curBlood <= 0)
         {
             curBlood = 0;
             die();
@@ -61,7 +62,8 @@ public class EnemyDroneScript : MonoBehaviour {
         isDie = true;
         blood_img.transform.parent.localScale = new Vector3(0,0,0);
         showBombEffect();
-	}
+        self_img.DOFade(0, 0.6f);
+    }
 
 	public void showBombEffect()
 	{
