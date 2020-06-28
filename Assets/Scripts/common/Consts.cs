@@ -81,13 +81,6 @@ public class Consts
         down,
     }
 
-    public enum FrameAnimationSpeed
-    {
-        low,
-        normal,
-        quick,
-    }
-
     public enum InputType
     {
         KeyBoard,       // 键盘

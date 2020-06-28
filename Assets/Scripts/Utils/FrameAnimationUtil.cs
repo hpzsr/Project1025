@@ -9,12 +9,12 @@ public class FrameData
     public Image image;
     public string path;
     public List<Sprite> sprites = new List<Sprite>();
-    public Consts.FrameAnimationSpeed speed = Consts.FrameAnimationSpeed.normal;
+    public FrameAnimationUtil.FrameAnimationSpeed speed = FrameAnimationUtil.FrameAnimationSpeed.normal;
     public int curIndex = 0;
     public bool isLoop = true;
     public AnimationEnd animationEnd = null;
 
-    public FrameData(Image _image, string _path, Consts.FrameAnimationSpeed _speed, bool _isLoop = true, AnimationEnd _animationEnd = null)
+    public FrameData(Image _image, string _path, FrameAnimationUtil.FrameAnimationSpeed _speed, bool _isLoop = true, AnimationEnd _animationEnd = null)
     {
         image = _image;
         path = _path;
@@ -55,6 +55,13 @@ public class FrameData
 
 public class FrameAnimationUtil : MonoBehaviour
 {
+    public enum FrameAnimationSpeed
+    {
+        low,
+        normal,
+        quick,
+    }
+
     // 动画信息面板
     bool isShowInfo = false;
     Text infoBoard = null;
@@ -78,9 +85,10 @@ public class FrameAnimationUtil : MonoBehaviour
     void Start()
     {
         InvokeRepeating("Timer_low", 0.1f, 1.0f / 6.0f);
-        InvokeRepeating("Timer_normal", 0.1f, 1.0f / 12.0f);
+        InvokeRepeating("Timer_normal", 0.1f, 1.0f / 9.0f);
+        InvokeRepeating("Timer_quick", 0.1f, 1.0f / 12.0f);
 
-        if(isShowInfo)
+        if (isShowInfo)
         {
             GameObject pre = Resources.Load("Prefabs/UI/Text", typeof(GameObject)) as GameObject;
             infoBoard = GameObject.Instantiate(pre, GameObject.Find("Canvas_High").transform).GetComponent<Text>();
@@ -131,7 +139,7 @@ public class FrameAnimationUtil : MonoBehaviour
         }
     }
 
-    public void startAnimation(Image _image, string path ,Consts.FrameAnimationSpeed _speed, bool _isLoop = true, AnimationEnd _animationEnd = null)
+    public void startAnimation(Image _image, string path , FrameAnimationUtil.FrameAnimationSpeed _speed, bool _isLoop = true, AnimationEnd _animationEnd = null)
     {
         if(getFrameData(_image) != null)
         {
@@ -169,7 +177,7 @@ public class FrameAnimationUtil : MonoBehaviour
     {
         for (int i = 0; i < frameDataList.Count; i++)
         {
-            if (frameDataList[i].speed == Consts.FrameAnimationSpeed.low)
+            if (frameDataList[i].speed == FrameAnimationUtil.FrameAnimationSpeed.low)
             {
                 if (frameDataList[i].curIndex >= (frameDataList[i].sprites.Count - 1))
                 {
@@ -207,9 +215,48 @@ public class FrameAnimationUtil : MonoBehaviour
 
     void Timer_normal()
     {
+        for (int i = 0; i < frameDataList.Count; i++)
+        {
+            if (frameDataList[i].speed == FrameAnimationUtil.FrameAnimationSpeed.normal)
+            {
+                if (frameDataList[i].curIndex >= (frameDataList[i].sprites.Count - 1))
+                {
+                    if (frameDataList[i].isLoop)
+                    {
+                        frameDataList[i].curIndex = 0;
+                    }
+                    else
+                    {
+                        stopAnimation(frameDataList[i].image);
+                        if (frameDataList[i].animationEnd != null)
+                        {
+                            frameDataList[i].animationEnd();
+                        }
+                    }
+                }
+                else
+                {
+                    ++frameDataList[i].curIndex;
+                }
+
+                if (frameDataList[i].image)
+                {
+                    frameDataList[i].image.sprite = frameDataList[i].sprites[frameDataList[i].curIndex];
+                }
+                else
+                {
+                    //Debug.LogError("Timer_normal image为空  " + frameDataList[i].path);
+                    //stopAnimation(frameDataList[i].image);
+                }
+            }
+        }
+    }
+
+    void Timer_quick()
+    {
         for(int i = 0; i < frameDataList.Count; i++)
         {
-            if(frameDataList[i].speed == Consts.FrameAnimationSpeed.normal)
+            if(frameDataList[i].speed == FrameAnimationUtil.FrameAnimationSpeed.quick)
             {
                 if(frameDataList[i].curIndex >= (frameDataList[i].sprites.Count - 1))
                 {
@@ -237,7 +284,7 @@ public class FrameAnimationUtil : MonoBehaviour
                 }
                 else
                 {
-                    //Debug.LogError("Timer_normal image为空  " + frameDataList[i].path);
+                    //Debug.LogError("Timer_quick image为空  " + frameDataList[i].path);
                     //stopAnimation(frameDataList[i].image);
                 }
             }

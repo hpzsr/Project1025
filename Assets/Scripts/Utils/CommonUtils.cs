@@ -372,17 +372,24 @@ public class CommonUtil
         return false;
     }
 
-    static public bool uiPosIsInContent(Vector2 vec2, Transform content)
+    static public bool uiPosIsInContent(Vector2 vec2, Transform content, object size = null)
     {
+        float pivot_y = content.GetComponent<RectTransform>().pivot.y;
+
         float x = content.transform.position.x;
         float y = content.transform.position.y;
-
+        
         float width = content.GetComponent<RectTransform>().sizeDelta.x;
         float height = content.GetComponent<RectTransform>().sizeDelta.y;
+        if(size != null)
+        {
+            width = ((Vector2)size).x;
+            height = ((Vector2)size).y;
+        }
         if ((vec2.x >= (x - width / 2)) &&
             (vec2.x <= (x + width / 2)) &&
-            (vec2.y >= (y - height / 2)) &&
-            (vec2.y <= (y + height / 2)))
+            (vec2.y >= (y - height * pivot_y)) &&
+            (vec2.y <= (y + height * (1 - pivot_y))))
         {
             return true;
         }

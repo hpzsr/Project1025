@@ -9,6 +9,8 @@ public class PlayerScript : MonoBehaviour
     public static PlayerScript s_instance = null;
 
     public Image self_img;
+    public Transform standShootPoint;
+    public Transform crouchShootPoint;
     public Consts.PlayerState playerState;
     public Consts.MoveDirection moveDirection = Consts.MoveDirection.right;
 
@@ -40,24 +42,26 @@ public class PlayerScript : MonoBehaviour
             // 跳跃、进入爬梯子状态
             case InputControl.KeyBoard.Down_W:
                 {
-                    Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
-                    if(ladder)
+                    if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.climb))
                     {
-                        // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
-                        setState(Consts.PlayerState.climb);
-                    }
-                    else
-                    {
-                        if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.jump))
+                        Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
+                        if (ladder)
                         {
-                            if (playerState == Consts.PlayerState.crouch)
-                            {
-                                setState(Consts.PlayerState.idle);
-                            }
-                            else
-                            {
-                                setState(Consts.PlayerState.jump);
-                            }
+                            // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
+                            setState(Consts.PlayerState.climb);
+                            break;
+                        }
+                    }
+
+                    if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.jump))
+                    {
+                        if (playerState == Consts.PlayerState.crouch)
+                        {
+                            setState(Consts.PlayerState.idle);
+                        }
+                        else
+                        {
+                            setState(Consts.PlayerState.jump);
                         }
                     }
 
@@ -83,8 +87,7 @@ public class PlayerScript : MonoBehaviour
             // 暂停向上爬梯子
             case InputControl.KeyBoard.Up_W:
                 {
-                    Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
-                    if (ladder)
+                    if (playerState == Consts.PlayerState.climb)
                     {
                         FrameAnimationUtil.getInstance().stopAnimation(self_img);
                     }
@@ -112,7 +115,8 @@ public class PlayerScript : MonoBehaviour
                         }
                         else if (playerState == Consts.PlayerState.crouch)
                         {
-                            setState(_playerState);
+                            setMoveDirection(direction);
+                            move(false);
                         }
                         else
                         {
@@ -143,18 +147,20 @@ public class PlayerScript : MonoBehaviour
             // 蹲下、进入爬梯子状态
             case InputControl.KeyBoard.Down_S:
                 {
-                    Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
-                    if (ladder)
+                    if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.climb))
                     {
-                        // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
-                        setState(Consts.PlayerState.climb);
-                    }
-                    else
-                    {
-                        if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.crouch))
+                        Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
+                        if (ladder)
                         {
-                            setState(Consts.PlayerState.crouch);
+                            // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
+                            setState(Consts.PlayerState.climb);
+                            break;
                         }
+                    }
+
+                    if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.crouch))
+                    {
+                        setState(Consts.PlayerState.crouch);
                     }
 
                     break;
@@ -178,8 +184,7 @@ public class PlayerScript : MonoBehaviour
             // 暂停向下爬梯子
             case InputControl.KeyBoard.Up_S:
                 {
-                    Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
-                    if (ladder)
+                    if (playerState == Consts.PlayerState.climb)
                     {
                         FrameAnimationUtil.getInstance().stopAnimation(self_img);
                     }
@@ -365,6 +370,7 @@ public class PlayerScript : MonoBehaviour
                 inputCallBack(Consts.PlayerState.drop);
             }
         }
+        // 降落
         else if (playerState == Consts.PlayerState.drop)
         {
             changePlayerPos(0, curJumpPower);
@@ -553,7 +559,7 @@ public class PlayerScript : MonoBehaviour
             // 站立
             case Consts.PlayerState.idle:
                 {
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/idle-", Consts.FrameAnimationSpeed.low);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/idle-", FrameAnimationUtil.FrameAnimationSpeed.low);
                     break;
                 }
                 
@@ -562,7 +568,7 @@ public class PlayerScript : MonoBehaviour
                 {
                     setMoveDirection(Consts.MoveDirection.left);
                     transform.localScale = new Vector3(-playerScale, playerScale, playerScale);
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/run-", Consts.FrameAnimationSpeed.normal);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/run-", FrameAnimationUtil.FrameAnimationSpeed.quick);
                     break;
                 }
 
@@ -571,7 +577,7 @@ public class PlayerScript : MonoBehaviour
                 {
                     setMoveDirection(Consts.MoveDirection.right);
                     transform.localScale = new Vector3(playerScale, playerScale, playerScale);
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/run-", Consts.FrameAnimationSpeed.normal);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/run-", FrameAnimationUtil.FrameAnimationSpeed.quick);
                     break;
                 }
 
@@ -579,28 +585,28 @@ public class PlayerScript : MonoBehaviour
             case Consts.PlayerState.jump:
                 {
                     curJumpPower = jumpPower;
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/jump-", Consts.FrameAnimationSpeed.low,false);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/jump-", FrameAnimationUtil.FrameAnimationSpeed.normal,false);
                     break;
                 }
 
             // 爬楼梯
             case Consts.PlayerState.climb:
                 {
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/climb-", Consts.FrameAnimationSpeed.low);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/climb-", FrameAnimationUtil.FrameAnimationSpeed.low);
                     break;
                 }
 
             // 蹲下
             case Consts.PlayerState.crouch:
                 {
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/crouch-", Consts.FrameAnimationSpeed.low);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/crouch-", FrameAnimationUtil.FrameAnimationSpeed.low);
                     break;
                 }
 
             // 被攻击
             case Consts.PlayerState.hurt:
                 {
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/hurt-", Consts.FrameAnimationSpeed.low);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/hurt-", FrameAnimationUtil.FrameAnimationSpeed.low);
                     break;
                 }
 
@@ -608,7 +614,7 @@ public class PlayerScript : MonoBehaviour
             case Consts.PlayerState.shoot:
                 {
                     BulletScript.Create(transform.parent, moveDirection);
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/shoot-", Consts.FrameAnimationSpeed.low, false,() => {
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/shoot-", FrameAnimationUtil.FrameAnimationSpeed.low, false,() => {
                         setState(Consts.PlayerState.idle);
                     });
 
@@ -618,7 +624,7 @@ public class PlayerScript : MonoBehaviour
             // 闪现
             case Consts.PlayerState.sprint:
                 {
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/sprint-", Consts.FrameAnimationSpeed.low);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/sprint-", FrameAnimationUtil.FrameAnimationSpeed.low);
 
                     // 位移
                     {
@@ -661,7 +667,7 @@ public class PlayerScript : MonoBehaviour
                 {
                     curJumpPower = 0;
                     playerState = Consts.PlayerState.drop;
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/drop-", Consts.FrameAnimationSpeed.low);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/drop-", FrameAnimationUtil.FrameAnimationSpeed.low);
 
                     break;
                 }
@@ -683,5 +689,28 @@ public class PlayerScript : MonoBehaviour
         }
 
         return false;
+    }
+
+    public Vector2 getCollsionSize()
+    {
+        float width = transform.GetComponent<RectTransform>().sizeDelta.x;
+        float height = transform.GetComponent<RectTransform>().sizeDelta.y;
+
+        width = width * 0.4f;
+        switch(playerState)
+        {
+            case Consts.PlayerState.crouch:
+                {
+                    height = height * 0.5f;
+                    break;
+                }
+
+            default:
+                {
+                    break;
+                }
+        }
+
+        return new Vector2(width, height);
     }
 }

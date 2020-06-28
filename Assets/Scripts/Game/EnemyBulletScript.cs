@@ -3,51 +3,46 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BulletScript : MonoBehaviour
+public class EnemyBulletScript : MonoBehaviour
 {
     Image self_img;
     public Consts.MoveDirection moveDirection;
+    public Transform parent;
 
-    float moveSpeed = 6.0f;
+    float moveSpeed = 3.0f;
 
-    public static BulletScript Create(Transform parent,Consts.MoveDirection _moveDirection)
+    public static EnemyBulletScript Create(Transform _parent,Consts.MoveDirection _moveDirection)
     {
-        GameObject pre = Resources.Load("Prefabs/Game/Bullet", typeof(GameObject)) as GameObject;
+        GameObject pre = Resources.Load("Prefabs/Game/EnemyBullet", typeof(GameObject)) as GameObject;
         GameObject bullet = GameObject.Instantiate(pre, GameObject.Find("Canvas/GameLayer/bg/distance1/map").transform);
-        BulletScript script = bullet.GetComponent<BulletScript>();
-        script.moveDirection = _moveDirection;
+        EnemyBulletScript script = bullet.GetComponent<EnemyBulletScript>();
+        script.setData(_parent, _moveDirection);
         return script;
+    }
+
+    public void setData(Transform _parent, Consts.MoveDirection _moveDirection)
+    {
+        moveDirection = _moveDirection;
+        parent = _parent;
     }
 
     void Start()
     {
         self_img = gameObject.GetComponent<Image>();
         FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/bullet/bullet-", FrameAnimationUtil.FrameAnimationSpeed.low);
-
-        PlayerScript player = PlayerScript.s_instance;
-        switch(player.playerState)
-        {
-            case Consts.PlayerState.crouch:
-                {
-                    transform.position = player.crouchShootPoint.transform.position;
-                    break;
-                }
-
-            default:
-                {
-                    transform.position = player.standShootPoint.transform.position;
-                    break;
-                }
-        }
-
+        
+        float parentHeight = parent.GetComponent<RectTransform>().sizeDelta.y;
+        Vector3 pos = parent.position;
+        
         if (moveDirection == Consts.MoveDirection.left)
         {
             transform.localScale = new Vector3(-1,1,1);
-            
+            transform.position = new Vector3(pos.x - 30, pos.y, 0);
         }
         else if (moveDirection == Consts.MoveDirection.right)
         {
             transform.localScale = new Vector3(1, 1, 1);
+            transform.position = new Vector3(pos.x + 30, pos.y, 0);
         }
     }
 
@@ -79,16 +74,10 @@ public class BulletScript : MonoBehaviour
 
     void checkCollision()
     {
-        for(int i = 0; i < EnemyManager.enemyDroneList.Count; i++)
+        if (CommonUtil.uiPosIsInContent(transform.position, PlayerScript.s_instance.transform, PlayerScript.s_instance.getCollsionSize()))
         {
-            EnemyDroneScript script = EnemyManager.enemyDroneList[i];
-            if (CommonUtil.uiPosIsInContent(transform.position, script.transform))
-            {
-                if(script.hurt(PlayerScript.s_instance.damage))
-                {
-                    DestroySelf();
-                }
-            }
+            //Debug.Log("打中人");
+            DestroySelf();
         }
     }
 

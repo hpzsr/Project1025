@@ -21,6 +21,8 @@ public class RoadScript : MonoBehaviour
     List<RoadInfo> roadList = new List<RoadInfo>();
     List<RoadInfo> ladderList = new List<RoadInfo>();
 
+    float ladderWidth = 16;
+
     void Start()
     {
         s_instance = this;
@@ -51,7 +53,6 @@ public class RoadScript : MonoBehaviour
         {
             Vector3 roadPos = roadList[i].m_transform.localPosition;
             float roadWidth = roadList[i].m_width;
-            //Debug.Log(vec3 + "  " + roadList[i].m_transform.localPosition + roadWidth);
             if ((vec3.x >= roadPos.x) && (vec3.x <= (roadPos.x + roadWidth)))
             {
                 float jily_y = roadPos.y - vec3.y;
@@ -72,8 +73,8 @@ public class RoadScript : MonoBehaviour
             Vector3 roadPos = ladderList[i].m_transform.localPosition;
             float roadWidth = ladderList[i].m_width;
             float jili_x = Mathf.Abs(roadPos.x - vec3.x);
-            // 人物和梯子横向距离<10即可认为是爬梯子
-            if(jili_x < 10)
+            // 人物和梯子横向距离<ladderWidth即可认为是爬梯子
+            if (jili_x < ladderWidth)
             {
                 // 为什么要-5？防止梯子高于地面，导致爬不上去
                 if ((vec3.y >= (roadPos.y - 5)) && (vec3.y <= (roadPos.y + roadWidth)))

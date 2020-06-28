@@ -69,10 +69,6 @@ public class InputControl : MonoBehaviour
             {
                 inputCallBack(KeyBoard.Keep_D);
             }
-            else if (Input.GetKeyDown(KeyCode.S))
-            {
-                inputCallBack(KeyBoard.Down_S);
-            }
             else if (Input.GetKeyUp(KeyCode.S))
             {
                 inputCallBack(KeyBoard.Up_S);
@@ -89,6 +85,11 @@ public class InputControl : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.M))
             {
                 inputCallBack(KeyBoard.Down_M);
+            }
+
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                inputCallBack(KeyBoard.Down_S);
             }
 
             //// 跳跃
