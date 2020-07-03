@@ -10,6 +10,7 @@ public class EnemyBulletScript : MonoBehaviour
     public Transform parent;
 
     float moveSpeed = 3.0f;
+    float damage = 1.0f;
 
     public static EnemyBulletScript Create(Transform _parent,Consts.MoveDirection _moveDirection)
     {
@@ -67,17 +68,6 @@ public class EnemyBulletScript : MonoBehaviour
         {
             DestroySelf();
             return;
-        }
-
-        checkCollision();
-    }
-
-    void checkCollision()
-    {
-        if (CommonUtil.uiPosIsInContent(transform.position, PlayerScript.s_instance.transform, PlayerScript.s_instance.getCollsionSize()))
-        {
-            //Debug.Log("打中人");
-            DestroySelf();
         }
     }
 

@@ -23,16 +23,29 @@ public class PlayerScript : MonoBehaviour
     public float climbSpeed = 1.5f;
     public float damage = 4;
 
+    bool isDie = false;
+    float fullBlood = 10;
+    float curBlood;
+
+    BoxCollider2D collider2D_stand;
+    BoxCollider2D collider2D_crouch;
+    BoxCollider2D collider2D_jump;
+
     void Start()
     {
         s_instance = this;
         
         InputControl.registerCallBack(inputCallBack);
 
-        setState(Consts.PlayerState.idle);
-
         width = transform.GetComponent<RectTransform>().sizeDelta.x * 0.5f;
         height = transform.GetComponent<RectTransform>().sizeDelta.y;
+
+        BoxCollider2D[] boxCollider2D = transform.GetComponents<BoxCollider2D>();
+        collider2D_stand = boxCollider2D[0];
+        collider2D_crouch = boxCollider2D[1];
+        collider2D_jump = boxCollider2D[2];
+
+        setState(Consts.PlayerState.idle);
     }
 
     void inputCallBack(InputControl.KeyBoard key)
@@ -391,6 +404,7 @@ public class PlayerScript : MonoBehaviour
             case Consts.PlayerState.idle:
             case Consts.PlayerState.run_left:
             case Consts.PlayerState.run_right:
+            case Consts.PlayerState.crouch:
                 {
                     // 脚下没路则设为降落状态
                     Transform road = RoadScript.s_instance.checkStandRoad(transform.localPosition);
@@ -554,6 +568,34 @@ public class PlayerScript : MonoBehaviour
     {
         playerState = _playerState;
 
+        switch(playerState)
+        {
+            case Consts.PlayerState.crouch:
+                {
+                    collider2D_stand.enabled = false;
+                    collider2D_crouch.enabled = true;
+                    collider2D_jump.enabled = false;
+                    break;
+                }
+
+            case Consts.PlayerState.jump:
+            case Consts.PlayerState.drop:
+                {
+                    collider2D_stand.enabled = false;
+                    collider2D_crouch.enabled = false;
+                    collider2D_jump.enabled = true;
+                    break;
+                }
+
+            default:
+                {
+                    collider2D_stand.enabled = true;
+                    collider2D_crouch.enabled = false;
+                    collider2D_jump.enabled = false;
+                    break;
+                }
+        }
+
         switch (_playerState)
         {
             // 站立
@@ -606,7 +648,9 @@ public class PlayerScript : MonoBehaviour
             // 被攻击
             case Consts.PlayerState.hurt:
                 {
-                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/hurt-", FrameAnimationUtil.FrameAnimationSpeed.low);
+                    FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/hurt-", FrameAnimationUtil.FrameAnimationSpeed.low,false, () => {
+                        setState(Consts.PlayerState.idle);
+                    });
                     break;
                 }
 
@@ -712,5 +756,58 @@ public class PlayerScript : MonoBehaviour
         }
 
         return new Vector2(width, height);
+    }
+    
+
+    public bool hurt(float damage)
+    {
+        if (isDie)
+        {
+            // return false;
+        }
+
+        // curBlood -= damage;
+        if (curBlood <= 0)
+        {
+            curBlood = 0;
+            die();
+        }
+
+        // 设置血条进度
+        // blood_img.transform.localScale = new Vector3(curBlood / fullBlood, 1, 1);
+
+        setState(Consts.PlayerState.hurt);
+
+        return true;
+    }
+
+    public void die()
+    {
+        isDie = true;
+        //blood_img.transform.parent.localScale = new Vector3(0, 0, 0);
+        //showBombEffect();
+    }
+
+    void OnTriggerEnter2D(Collider2D collidedObject)
+    {
+        if(collidedObject.tag == "EnemyDrone")
+        {
+            //hurt(1);
+        }
+        else if (collidedObject.tag == "EnemyBullet")
+        {
+            hurt(1);
+            collidedObject.GetComponent<EnemyBulletScript>().DestroySelf();
+        }
+    }
+
+    void OnTriggerStay2D(Collider2D collidedObject)
+    {
+
+    }
+
+    void OnTriggerExit2D(Collider2D collidedObject)
+    {
+
     }
 }

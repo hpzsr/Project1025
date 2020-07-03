@@ -340,7 +340,7 @@ public class CommonUtil
 
     static public Sprite getSprite(string path)
     {
-        return Resources.Load("Sprites/" + path, typeof(Sprite)) as Sprite;
+        return Resources.Load(path, typeof(Sprite)) as Sprite;
     }
 
     static public Vector3 TouchPosToWorldPos(Vector2 vec2)

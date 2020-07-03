@@ -73,23 +73,6 @@ public class BulletScript : MonoBehaviour
             DestroySelf();
             return;
         }
-
-        checkCollision();
-    }
-
-    void checkCollision()
-    {
-        for(int i = 0; i < EnemyManager.enemyDroneList.Count; i++)
-        {
-            EnemyDroneScript script = EnemyManager.enemyDroneList[i];
-            if (CommonUtil.uiPosIsInContent(transform.position, script.transform))
-            {
-                if(script.hurt(PlayerScript.s_instance.damage))
-                {
-                    DestroySelf();
-                }
-            }
-        }
     }
 
     public void DestroySelf()

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RoadInfo
 {
@@ -23,6 +24,8 @@ public class RoadScript : MonoBehaviour
 
     float ladderWidth = 16;
 
+    public bool isShowLine;
+
     void Start()
     {
         s_instance = this;
@@ -38,6 +41,11 @@ public class RoadScript : MonoBehaviour
             else
             {
                 ladderList.Add(new RoadInfo(road, width));
+            }
+
+            if(!isShowLine)
+            {
+                road.GetComponent<Image>().color = new Color(0,0,0,0);
             }
         }
     }

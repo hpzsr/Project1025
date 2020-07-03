@@ -44,6 +44,7 @@
 {"oldState":"crouch","newState":"run_right"},
 {"oldState":"crouch","newState":"hurt"},
 {"oldState":"crouch","newState":"shoot"},
+{"oldState":"crouch","newState":"drop"},
 {"oldState":"hurt","newState":"idle"},
 {"oldState":"shoot","newState":"idle"},
 {"oldState":"shoot","newState":"drop"},
