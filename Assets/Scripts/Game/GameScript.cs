@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class GameScript : MonoBehaviour
 {
+    public static GameScript s_instance = null;
+
+    public Image blood_img;
+
     public Text info_state;
     public Text info_jumpSpeed;
     public Text info_dropSpeed;
@@ -17,6 +21,10 @@ public class GameScript : MonoBehaviour
     void Start()
     {
         Application.targetFrameRate = 60;
+
+        s_instance = this;
+        GameObject map = CommonUtil.createObjFromPrefab(transform.Find("bg/distance1"), "Prefabs/Game/map/map1");
+        BgScript.s_instance.setMap(map.transform);
     }
     
     void Update()
@@ -43,6 +51,15 @@ public class GameScript : MonoBehaviour
             //    info_dropSpeed.text = "降速：0";
             //}
         }
+    }
+
+    public void restart()
+    {
+        FrameAnimationUtil.getInstance().clearAll();
+        GameObject.Destroy(BgScript.s_instance.map.gameObject);
+
+        GameObject map = CommonUtil.createObjFromPrefab(transform.Find("bg/distance1"), "Prefabs/Game/map/map1");
+        BgScript.s_instance.setMap(map.transform);
     }
 
     public void onClickJieShao()

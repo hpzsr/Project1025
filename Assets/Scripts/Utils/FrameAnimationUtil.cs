@@ -290,4 +290,9 @@ public class FrameAnimationUtil : MonoBehaviour
             }
         }
     }
+
+    public void clearAll()
+    {
+        frameDataList.Clear();
+    }
 }

@@ -53,22 +53,6 @@ public class InputControl : MonoBehaviour
             {
                 inputCallBack(KeyBoard.Keep_W);
             }
-            else if (Input.GetKeyUp(KeyCode.A))
-            {
-                inputCallBack(KeyBoard.Up_A);
-            }
-            else if (Input.GetKey(KeyCode.A))
-            {
-                inputCallBack(KeyBoard.Keep_A);
-            }
-            else if (Input.GetKeyUp(KeyCode.D))
-            {
-                inputCallBack(KeyBoard.Up_D);
-            }
-            else if (Input.GetKey(KeyCode.D))
-            {
-                inputCallBack(KeyBoard.Keep_D);
-            }
             else if (Input.GetKeyUp(KeyCode.S))
             {
                 inputCallBack(KeyBoard.Up_S);
@@ -92,47 +76,22 @@ public class InputControl : MonoBehaviour
                 inputCallBack(KeyBoard.Down_S);
             }
 
-            //// 跳跃
-            //if (Input.GetKeyDown(KeyCode.W))
-            //{
-            //    inputCallBack(Consts.PlayerState.jump);
-            //}
-            //// 左移
-            //else if (Input.GetKey(KeyCode.A))
-            //{
-            //    inputCallBack(Consts.PlayerState.run_left);
-            //}
-            //// 停止左移
-            //else if (Input.GetKeyUp(KeyCode.A))
-            //{
-            //    inputCallBack(Consts.PlayerState.stop_run_left);
-            //}
-            //// 蹲下
-            //else if (Input.GetKeyDown(KeyCode.S))
-            //{
-            //    inputCallBack(Consts.PlayerState.crouch);
-            //}
-            //// 右移
-            //else if (Input.GetKey(KeyCode.D))
-            //{
-            //    inputCallBack(Consts.PlayerState.run_right);
-            //}
-            //// 停止右移
-            //else if (Input.GetKeyUp(KeyCode.D))
-            //{
-            //    inputCallBack(Consts.PlayerState.stop_run_right);
-            //}
-
-            //// 开枪
-            //if (Input.GetKeyDown(KeyCode.M))
-            //{
-            //    inputCallBack(Consts.PlayerState.shoot);
-            //}
-            //// 闪现
-            //else if (Input.GetKeyDown(KeyCode.N))
-            //{
-            //    inputCallBack(Consts.PlayerState.sprint);
-            //}
+            if (Input.GetKeyUp(KeyCode.A))
+            {
+                inputCallBack(KeyBoard.Up_A);
+            }
+            else if (Input.GetKey(KeyCode.A))
+            {
+                inputCallBack(KeyBoard.Keep_A);
+            }
+            else if (Input.GetKeyUp(KeyCode.D))
+            {
+                inputCallBack(KeyBoard.Up_D);
+            }
+            else if (Input.GetKey(KeyCode.D))
+            {
+                inputCallBack(KeyBoard.Keep_D);
+            }
         }
     }
 }

@@ -7,11 +7,12 @@ using UnityEngine.UI;
 public class EnemyDroneScript : MonoBehaviour {
 
 	public Image self_img;
-	public Image bomb_img;
     public Image blood_bg_img;
     public Image blood_img;
+	public Image bomb_img;
 
-    bool isDie = false;
+    public bool isCanDamage = true;
+    public bool isDie = false;
     float fullBlood = 10;
     float curBlood;
     float shootDurTime = 5;
@@ -36,7 +37,7 @@ public class EnemyDroneScript : MonoBehaviour {
 
         setDirection(direction);
 
-        InvokeRepeating("onShoot", shootDurTime, shootDurTime);
+        //InvokeRepeating("onShoot", shootDurTime, shootDurTime);
         InvokeRepeating("changeDirection", 7, 7);
     }
 	
@@ -135,11 +136,29 @@ public class EnemyDroneScript : MonoBehaviour {
 	public void showBombEffect()
 	{
 		bomb_img.transform.localScale = new Vector3(1,1,1);
-		FrameAnimationUtil.getInstance().startAnimation(bomb_img, "Sprites/enemy-explosion/enemy-explosion-", FrameAnimationUtil.FrameAnimationSpeed.low,false,()=>
+		FrameAnimationUtil.getInstance().startAnimation(bomb_img, "Sprites/enemy-explosion/enemy-explosion-", FrameAnimationUtil.FrameAnimationSpeed.normal, false,()=>
 		{
             EnemyManager.destroyEnemyDrone(gameObject.GetComponent<EnemyDroneScript>());
 		});
 	}
+
+    public void setCanDamage(bool b)
+    {
+        isCanDamage = b;
+
+        if(!isCanDamage)
+        {
+            // 1秒内不能造成伤害
+            TimerUtil.getInstance().delayTime(1.0f,()=> {
+                setCanDamage(true);
+            });
+        }
+    }
+
+    public bool getIsCanDamage()
+    {
+        return !isDie && isCanDamage;
+    }
 
     void OnTriggerEnter2D(Collider2D collidedObject)
     {

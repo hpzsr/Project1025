@@ -433,4 +433,14 @@ public class CommonUtil
         return angle * Mathf.Deg2Rad;
     }
 
+    static public GameObject createObjFromPrefab(Transform parent,string path)
+    {
+        GameObject pre = Resources.Load(path, typeof(GameObject)) as GameObject;
+        if (pre != null)
+        {
+            return GameObject.Instantiate(pre, parent);
+        }
+
+        return null;
+    }
 }

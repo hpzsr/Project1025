@@ -14,6 +14,8 @@ public class PlayerScript : MonoBehaviour
     public Consts.PlayerState playerState;
     public Consts.MoveDirection moveDirection = Consts.MoveDirection.right;
 
+    int jumpComboCount = 2;
+    int curJumpCount = 0;
     float width;
     float height;
     float playerScale = 1.0f;
@@ -39,6 +41,7 @@ public class PlayerScript : MonoBehaviour
 
         width = transform.GetComponent<RectTransform>().sizeDelta.x * 0.5f;
         height = transform.GetComponent<RectTransform>().sizeDelta.y;
+        curBlood = fullBlood;
 
         BoxCollider2D[] boxCollider2D = transform.GetComponents<BoxCollider2D>();
         collider2D_stand = boxCollider2D[0];
@@ -46,6 +49,7 @@ public class PlayerScript : MonoBehaviour
         collider2D_jump = boxCollider2D[2];
 
         setState(Consts.PlayerState.idle);
+        setBloodProgres();
     }
 
     void inputCallBack(InputControl.KeyBoard key)
@@ -60,9 +64,15 @@ public class PlayerScript : MonoBehaviour
                         Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
                         if (ladder)
                         {
-                            // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
-                            setState(Consts.PlayerState.climb);
-                            break;
+                            if (playerState == Consts.PlayerState.idle)
+                            {
+                                if ((ladder.position.y + 50) > transform.position.y)
+                                {
+                                    // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
+                                    setState(Consts.PlayerState.climb);
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -74,7 +84,10 @@ public class PlayerScript : MonoBehaviour
                         }
                         else
                         {
-                            setState(Consts.PlayerState.jump);
+                            if (curJumpCount < jumpComboCount)
+                            {
+                                setState(Consts.PlayerState.jump);
+                            }
                         }
                     }
 
@@ -129,7 +142,7 @@ public class PlayerScript : MonoBehaviour
                         else if (playerState == Consts.PlayerState.crouch)
                         {
                             setMoveDirection(direction);
-                            move(false);
+                            //move(false);
                         }
                         else
                         {
@@ -165,9 +178,15 @@ public class PlayerScript : MonoBehaviour
                         Transform ladder = RoadScript.s_instance.checkLadder(transform.localPosition);
                         if (ladder)
                         {
-                            // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
-                            setState(Consts.PlayerState.climb);
-                            break;
+                            if (playerState == Consts.PlayerState.idle)
+                            {
+                                if ((ladder.position.y + 50) < transform.position.y)
+                                {
+                                    // transform.position = new Vector3(ladder.position.x, transform.position.y, 0);
+                                    setState(Consts.PlayerState.climb);
+                                    break;
+                                }
+                            }
                         }
                     }
 
@@ -389,7 +408,7 @@ public class PlayerScript : MonoBehaviour
             changePlayerPos(0, curJumpPower);
             curJumpPower -= 0.5f;
             curJumpPower = curJumpPower < -20 ? -20 : curJumpPower;     // 控制最大下落速度
-            Transform road = RoadScript.s_instance.checkStandRoad(transform.localPosition);
+            Transform road = RoadScript.s_instance.checkStandRoad(transform.position);
             if (road != null)
             {
                 transform.position = new Vector3(transform.position.x, road.position.y, 0);
@@ -407,7 +426,7 @@ public class PlayerScript : MonoBehaviour
             case Consts.PlayerState.crouch:
                 {
                     // 脚下没路则设为降落状态
-                    Transform road = RoadScript.s_instance.checkStandRoad(transform.localPosition);
+                    Transform road = RoadScript.s_instance.checkStandRoad(transform.position);
                     if (road == null)
                     {
                         inputCallBack(Consts.PlayerState.drop);
@@ -601,6 +620,7 @@ public class PlayerScript : MonoBehaviour
             // 站立
             case Consts.PlayerState.idle:
                 {
+                    curJumpCount = 0;
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/idle-", FrameAnimationUtil.FrameAnimationSpeed.low);
                     break;
                 }
@@ -626,6 +646,7 @@ public class PlayerScript : MonoBehaviour
             // 跳跃
             case Consts.PlayerState.jump:
                 {
+                    ++curJumpCount;
                     curJumpPower = jumpPower;
                     FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/player/jump-", FrameAnimationUtil.FrameAnimationSpeed.normal,false);
                     break;
@@ -757,28 +778,36 @@ public class PlayerScript : MonoBehaviour
 
         return new Vector2(width, height);
     }
-    
+
 
     public bool hurt(float damage)
     {
         if (isDie)
         {
-            // return false;
+            return false;
         }
 
-        // curBlood -= damage;
+        curBlood -= damage;
         if (curBlood <= 0)
         {
             curBlood = 0;
             die();
         }
 
-        // 设置血条进度
-        // blood_img.transform.localScale = new Vector3(curBlood / fullBlood, 1, 1);
+        setBloodProgres();
 
-        setState(Consts.PlayerState.hurt);
+        if (PlayerStateChangeEntity.getInstance().checkIsCanChange(playerState, Consts.PlayerState.hurt))
+        {
+            setState(Consts.PlayerState.hurt);
+        }
 
         return true;
+    }
+
+    // 设置血条进度
+    public void setBloodProgres()
+    {
+        GameScript.s_instance.blood_img.transform.localScale = new Vector3(curBlood / fullBlood, 1, 1);
     }
 
     public void die()
@@ -786,13 +815,20 @@ public class PlayerScript : MonoBehaviour
         isDie = true;
         //blood_img.transform.parent.localScale = new Vector3(0, 0, 0);
         //showBombEffect();
+
+        LayerManager.showLayer(Consts.Layer.GameResultLayer);
     }
 
     void OnTriggerEnter2D(Collider2D collidedObject)
     {
         if(collidedObject.tag == "EnemyDrone")
         {
-            //hurt(1);
+            EnemyDroneScript script = collidedObject.transform.GetComponent<EnemyDroneScript>();
+            if (script.getIsCanDamage())
+            {
+                script.setCanDamage(false);
+                hurt(1);
+            }
         }
         else if (collidedObject.tag == "EnemyBullet")
         {
@@ -806,8 +842,8 @@ public class PlayerScript : MonoBehaviour
 
     }
 
+
     void OnTriggerExit2D(Collider2D collidedObject)
     {
-
     }
 }

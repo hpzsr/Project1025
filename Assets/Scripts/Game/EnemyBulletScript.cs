@@ -9,13 +9,13 @@ public class EnemyBulletScript : MonoBehaviour
     public Consts.MoveDirection moveDirection;
     public Transform parent;
 
-    float moveSpeed = 3.0f;
+    float moveSpeed = 5.0f;
     float damage = 1.0f;
 
     public static EnemyBulletScript Create(Transform _parent,Consts.MoveDirection _moveDirection)
     {
         GameObject pre = Resources.Load("Prefabs/Game/EnemyBullet", typeof(GameObject)) as GameObject;
-        GameObject bullet = GameObject.Instantiate(pre, GameObject.Find("Canvas/GameLayer/bg/distance1/map").transform);
+        GameObject bullet = GameObject.Instantiate(pre, BgScript.s_instance.map);
         EnemyBulletScript script = bullet.GetComponent<EnemyBulletScript>();
         script.setData(_parent, _moveDirection);
         return script;
@@ -31,25 +31,14 @@ public class EnemyBulletScript : MonoBehaviour
     {
         self_img = gameObject.GetComponent<Image>();
         FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/bullet/bullet-", FrameAnimationUtil.FrameAnimationSpeed.low);
-        
+
         float parentHeight = parent.GetComponent<RectTransform>().sizeDelta.y;
-        Vector3 pos = parent.position;
-        
-        if (moveDirection == Consts.MoveDirection.left)
-        {
-            transform.localScale = new Vector3(-1,1,1);
-            transform.position = new Vector3(pos.x - 30, pos.y, 0);
-        }
-        else if (moveDirection == Consts.MoveDirection.right)
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-            transform.position = new Vector3(pos.x + 30, pos.y, 0);
-        }
+        transform.position = parent.Find("shootPoint").position;
     }
 
     void Update()
     {
-        if(moveDirection == Consts.MoveDirection.left)
+        if (moveDirection == Consts.MoveDirection.left)
         {
             transform.position -= new Vector3(moveSpeed, 0, 0);
         }

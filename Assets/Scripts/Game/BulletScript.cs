@@ -13,7 +13,7 @@ public class BulletScript : MonoBehaviour
     public static BulletScript Create(Transform parent,Consts.MoveDirection _moveDirection)
     {
         GameObject pre = Resources.Load("Prefabs/Game/Bullet", typeof(GameObject)) as GameObject;
-        GameObject bullet = GameObject.Instantiate(pre, GameObject.Find("Canvas/GameLayer/bg/distance1/map").transform);
+        GameObject bullet = GameObject.Instantiate(pre, BgScript.s_instance.map);
         BulletScript script = bullet.GetComponent<BulletScript>();
         script.moveDirection = _moveDirection;
         return script;

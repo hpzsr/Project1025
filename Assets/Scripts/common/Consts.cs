@@ -33,6 +33,7 @@ public class Consts
 {
     public static float DevScreenWidth = 960;
     public static float DevScreenHeight = 540;
+    
 
     public static float getWidth()
     {
@@ -86,5 +87,11 @@ public class Consts
         KeyBoard,       // 键盘
         Touch,          // 触摸
         HandShank       // 手柄
+    }
+
+    public enum Layer
+    {
+        GameLayer,
+        GameResultLayer,
     }
 }

@@ -42,7 +42,6 @@
 {"oldState":"crouch","newState":"jump"},
 {"oldState":"crouch","newState":"run_left"},
 {"oldState":"crouch","newState":"run_right"},
-{"oldState":"crouch","newState":"hurt"},
 {"oldState":"crouch","newState":"shoot"},
 {"oldState":"crouch","newState":"drop"},
 {"oldState":"hurt","newState":"idle"},
@@ -54,6 +53,7 @@
 {"oldState":"drop","newState":"run_right"},
 {"oldState":"drop","newState":"jump"},
 {"oldState":"drop","newState":"shoot"},
+{"oldState":"drop","newState":"hurt"},
 {"oldState":"stop_run_left","newState":"idle"},
 {"oldState":"stop_run_right","newState":"idle"}
 ]

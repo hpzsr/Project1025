@@ -10,23 +10,31 @@ public class BgScript : MonoBehaviour
     public GameObject distance2;
     public GameObject distance3;
 
-    public Transform map;
-    public float mapWidth;
+    public Transform map = null;
+    float mapWidth = 0;
 
     void Start()
     {
         s_instance = this;
-
-        map = transform.Find("distance1/map");
-        mapWidth = map.GetComponent<RectTransform>().sizeDelta.x;
     }
     
     void Update()
     {
     }
 
+    public void setMap(Transform _map)
+    {
+        map = _map;
+        mapWidth = map.GetComponent<RectTransform>().sizeDelta.x;
+    }
+
     public bool moveX(float x)
     {
+        if(map == null)
+        {
+            return false;
+        }
+
         // distance1
         {
             if (x != 0)
@@ -160,6 +168,11 @@ public class BgScript : MonoBehaviour
 
     public bool moveY(float y)
     {
+        if (map == null)
+        {
+            return false;
+        }
+
         // distance1
         {
             if (y != 0)

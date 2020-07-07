@@ -14,7 +14,7 @@ public class TurretScript : MonoBehaviour {
     bool isDie = false;
     float fullBlood = 10;
     float curBlood;
-    float shootDurTime = 5;
+    float shootDurTime = 3;
 
     public Consts.MoveDirection direction = Consts.MoveDirection.right;
 
@@ -32,8 +32,19 @@ public class TurretScript : MonoBehaviour {
         
         EnemyManager.addTurret(gameObject.GetComponent<TurretScript>());
 
+        shootDurTime = RandomUtil.getRandom(1,5);
         InvokeRepeating("onShoot", shootDurTime, shootDurTime);
         FrameAnimationUtil.getInstance().startAnimation(self_img, "Sprites/turret/turret-", FrameAnimationUtil.FrameAnimationSpeed.low);
+
+        if (direction == Consts.MoveDirection.left)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+
+        }
+        else if (direction == Consts.MoveDirection.right)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
     }
 	
 	void Update () {
@@ -90,7 +101,7 @@ public class TurretScript : MonoBehaviour {
 	public void showBombEffect()
 	{
 		bomb_img.transform.localScale = new Vector3(1,1,1);
-		FrameAnimationUtil.getInstance().startAnimation(bomb_img, "Sprites/enemy-explosion/enemy-explosion-", FrameAnimationUtil.FrameAnimationSpeed.low,false,()=>
+		FrameAnimationUtil.getInstance().startAnimation(bomb_img, "Sprites/enemy-explosion/enemy-explosion-", FrameAnimationUtil.FrameAnimationSpeed.normal, false,()=>
 		{
             EnemyManager.destroyTurret(gameObject.GetComponent<TurretScript>());
 		});
